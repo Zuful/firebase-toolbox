@@ -1,4 +1,4 @@
-module gofire
+module github.com/Zuful/gofire
 
 go 1.14
 
