@@ -16,7 +16,7 @@ type Storage struct {
 	bucketName         string
 }
 
-func (storage *Storage) uploadToFirebase(filePath string) (string, error) {
+func (storage *Storage) UploadToFirebase(filePath string) (string, error) {
 	//create an id
 	id := uuid.New()
 	fileInput, err := ioutil.ReadFile(filePath)
