@@ -11,18 +11,14 @@ import (
 	"net/url"
 )
 
-var app *firebase.App
-var firebaseErr error
-var ctx context.Context
-
 type Storage struct{}
 
-func uploadToFirebase(filePath, bucketName, credentialFilePath string) (string, error) {
+func (storage *Storage) uploadToFirebase(filePath, bucketName, credentialFilePath string) (string, error) {
 	//create an id
 	id := uuid.New()
 	fileInput, err := ioutil.ReadFile(filePath)
 	CheckErr(err)
-	ctx = context.Background()
+	ctx := context.Background()
 	opt := option.WithCredentialsFile(credentialFilePath)
 	app, firebaseErr = firebase.NewApp(context.Background(), nil, opt)
 	CheckErr(firebaseErr)
