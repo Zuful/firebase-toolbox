@@ -1,4 +1,4 @@
-package go_fire
+package gofire
 
 import "log"
 

@@ -1,3 +1,3 @@
-package go_fire
+package gofire
 
 type Firestore struct{}
