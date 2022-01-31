@@ -3,12 +3,17 @@ package go_fire
 import (
 	"bytes"
 	"context"
+	"firebase.google.com/go"
 	"github.com/google/uuid"
 	"google.golang.org/api/option"
 	"io"
 	"io/ioutil"
 	"net/url"
 )
+
+var app *firebase.App
+var firebaseErr error
+var ctx context.Context
 
 type Storage struct{}
 
