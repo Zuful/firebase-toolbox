@@ -11,22 +11,25 @@ import (
 	"net/url"
 )
 
-type Storage struct{}
+type Storage struct {
+	credentialFilePath string
+	bucketName         string
+}
 
-func (storage *Storage) uploadToFirebase(filePath, bucketName, credentialFilePath string) (string, error) {
+func (storage *Storage) uploadToFirebase(filePath string) (string, error) {
 	//create an id
 	id := uuid.New()
 	fileInput, err := ioutil.ReadFile(filePath)
 	CheckErr(err)
 	ctx := context.Background()
-	opt := option.WithCredentialsFile(credentialFilePath)
+	opt := option.WithCredentialsFile(storage.credentialFilePath)
 	app, firebaseErr = firebase.NewApp(context.Background(), nil, opt)
 	CheckErr(firebaseErr)
 
 	client, err := app.Storage(context.Background())
 	CheckErr(err)
 
-	bucket, err := client.Bucket(bucketName)
+	bucket, err := client.Bucket(storage.bucketName)
 	CheckErr(err)
 
 	object := bucket.Object(filePath)
@@ -45,7 +48,7 @@ func (storage *Storage) uploadToFirebase(filePath, bucketName, credentialFilePat
 		}
 	*/
 
-	var baseStorageImagePath string = "https://firebasestorage.googleapis.com/v0/b/" + bucketName + "/o/" + url.QueryEscape(filePath) + "?alt=media&token="
+	var baseStorageImagePath string = "https://firebasestorage.googleapis.com/v0/b/" + storage.bucketName + "/o/" + url.QueryEscape(filePath) + "?alt=media&token="
 	var storageImagePath string = baseStorageImagePath + id.String()
 
 	return storageImagePath, nil

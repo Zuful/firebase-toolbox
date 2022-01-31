@@ -1,3 +1,6 @@
 package gofire
 
-type Firestore struct{}
+type Firestore struct {
+	credentialFilePath string
+	bucketName         string
+}

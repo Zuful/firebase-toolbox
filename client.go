@@ -12,14 +12,23 @@ type Client struct {
 	bucketName         string
 }
 
-func NewClient(bucketName string) *Client {
-	return &Client{}
+func NewClient(credentialFilePath, bucketName string) *Client {
+	return &Client{
+		credentialFilePath: credentialFilePath,
+		bucketName:         bucketName,
+	}
 }
 
 func (client *Client) NewFirestore() *Firestore {
-	return &Firestore{}
+	return &Firestore{
+		credentialFilePath: client.credentialFilePath,
+		bucketName:         client.bucketName,
+	}
 }
 
 func (client *Client) NewStorage() *Storage {
-	return &Storage{}
+	return &Storage{
+		credentialFilePath: client.credentialFilePath,
+		bucketName:         client.bucketName,
+	}
 }
