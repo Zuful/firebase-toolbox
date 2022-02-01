@@ -3,37 +3,31 @@ package gofire
 import (
 	"bytes"
 	"context"
-	"firebase.google.com/go"
 	"github.com/google/uuid"
-	"google.golang.org/api/option"
 	"io"
 	"io/ioutil"
 	"net/url"
 )
 
 type Storage struct {
-	credentialFilePath string
-	bucketName         string
+	client *Client
+	ctx    context.Context
 }
 
-func (storage *Storage) UploadToFirebase(filePath string) (string, error) {
+func (s *Storage) UploadToFirebase(filePath string) (string, error) {
 	//create an id
 	id := uuid.New()
 	fileInput, err := ioutil.ReadFile(filePath)
 	CheckErr(err)
-	ctx := context.Background()
-	opt := option.WithCredentialsFile(storage.credentialFilePath)
-	app, firebaseErr = firebase.NewApp(context.Background(), nil, opt)
-	CheckErr(firebaseErr)
 
-	client, err := app.Storage(context.Background())
+	client, err := s.client.app.Storage(context.Background())
 	CheckErr(err)
 
-	bucket, err := client.Bucket(storage.bucketName)
+	bucket, err := client.Bucket(s.client.bucketName)
 	CheckErr(err)
 
 	object := bucket.Object(filePath)
-	writer := object.NewWriter(ctx)
+	writer := object.NewWriter(s.ctx)
 
 	//Set the attribute
 	writer.ObjectAttrs.Metadata = map[string]string{"firebaseStorageDownloadTokens": id.String()}
@@ -48,7 +42,7 @@ func (storage *Storage) UploadToFirebase(filePath string) (string, error) {
 		}
 	*/
 
-	var baseStorageImagePath string = "https://firebasestorage.googleapis.com/v0/b/" + storage.bucketName + "/o/" + url.QueryEscape(filePath) + "?alt=media&token="
+	var baseStorageImagePath string = "https://firebasestorage.googleapis.com/v0/b/" + s.client.bucketName + "/o/" + url.QueryEscape(filePath) + "?alt=media&token="
 	var storageImagePath string = baseStorageImagePath + id.String()
 
 	return storageImagePath, nil
