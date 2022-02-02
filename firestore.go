@@ -19,14 +19,11 @@ type Clause struct {
 	Value     interface{}
 }
 
-func (f Firestore) CreateDocument(collectionName, documentId string, documentToCreate interface{}) *firestore.WriteResult {
-	res, err := f.firestoreClient.Collection(collectionName).Doc(documentId).Set(f.ctx, documentToCreate)
-	CheckErr(err)
-
-	return res
+func (f Firestore) CreateDocument(collectionName, documentId string, documentToCreate interface{}) (*firestore.WriteResult, error) {
+	return f.firestoreClient.Collection(collectionName).Doc(documentId).Set(f.ctx, documentToCreate)
 }
 
-func (f Firestore) GetDocument(collectionName, documentId string) string {
+func (f Firestore) GetDocument(collectionName, documentId string) (string, error) {
 	establishmentSnap, err := f.firestoreClient.Collection(collectionName).Doc(documentId).Get(f.ctx)
 	CheckErr(err)
 
@@ -34,25 +31,28 @@ func (f Firestore) GetDocument(collectionName, documentId string) string {
 	establishmentJson, err := json.Marshal(establishmentMap)
 	CheckErr(err)
 
-	return string(establishmentJson)
+	return string(establishmentJson), err
 }
 
-func (f Firestore) UpdateDocument(collectionName, documentId string, fieldList map[string]interface{}) *firestore.WriteResult {
+func (f Firestore) UpdateDocument(collectionName, documentId string, updateList []map[string]interface{}) (*firestore.WriteResult, error) {
 	var allUpdates []firestore.Update = make([]firestore.Update, 0)
 
-	for fieldPath, fieldValue := range fieldList {
-		var oneUpdate firestore.Update = firestore.Update{
-			Path:  fieldPath,
-			Value: fieldValue,
+	for _, oneUpdateValue := range updateList { // runs through all the fields to update
+
+		for fieldPath, fieldValue := range oneUpdateValue {
+			var oneUpdate firestore.Update = firestore.Update{
+				Path:  fieldPath,
+				Value: fieldValue,
+			}
+
+			allUpdates = append(allUpdates, oneUpdate)
 		}
 
-		allUpdates = append(allUpdates, oneUpdate)
 	}
 
 	res, err := f.firestoreClient.Collection(collectionName).Doc(documentId).Update(f.ctx, allUpdates)
-	CheckErr(err)
 
-	return res
+	return res, err
 }
 
 func (f Firestore) GetDocumentList(collectionName string, clauseList []Clause) string {
@@ -85,9 +85,8 @@ func (f Firestore) GetDocumentList(collectionName string, clauseList []Clause) s
 	return string(allDocumentsJson)
 }
 
-func (f Firestore) DeleteDocument(collectionName, documentId string) *firestore.WriteResult {
+func (f Firestore) DeleteDocument(collectionName, documentId string) (*firestore.WriteResult, error) {
 	result, err := f.firestoreClient.Collection(collectionName).Doc(documentId).Delete(f.ctx)
-	CheckErr(err)
 
-	return result
+	return result, err
 }
